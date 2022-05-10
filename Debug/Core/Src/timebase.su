@@ -1,0 +1,3 @@
+stm32l0xx_ll_tim.h:910:22:LL_TIM_EnableCounter	16	static
+stm32l0xx_ll_tim.h:943:22:LL_TIM_EnableUpdateEvent	16	static
+timebase.c:4:6:TimeBaseStartIT	8	static
