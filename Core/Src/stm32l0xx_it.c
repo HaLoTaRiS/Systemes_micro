@@ -147,9 +147,9 @@ void SysTick_Handler(void)
 void TIM21_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM21_IRQn 0 */
-//	LL_TIM_ClearFlag_CC1(TIM21);
-//LL_TIM_ClearFlag_UPDATE(TIM21);
-	//	LedPulse();
+	//	LL_TIM_ClearFlag_CC1(TIM21);
+	LL_TIM_ClearFlag_UPDATE(TIM21);
+	LedPulse();
   /* USER CODE END TIM21_IRQn 0 */
   /* USER CODE BEGIN TIM21_IRQn 1 */
 

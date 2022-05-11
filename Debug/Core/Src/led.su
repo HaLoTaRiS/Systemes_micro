@@ -1,6 +1,7 @@
 stm32l0xx_ll_tim.h:910:22:LL_TIM_EnableCounter	16	static
+stm32l0xx_ll_tim.h:943:22:LL_TIM_EnableUpdateEvent	16	static
 stm32l0xx_ll_tim.h:1290:22:LL_TIM_CC_EnableChannel	16	static
 stm32l0xx_ll_tim.h:1687:22:LL_TIM_OC_SetCompareCH1	16	static
 led.c:23:6:LedStart	8	static
-led.c:29:6:LedSetValue	16	static
-led.c:33:6:LedPulse	8	static
+led.c:32:6:LedSetValue	16	static
+led.c:36:6:LedPulse	8	static

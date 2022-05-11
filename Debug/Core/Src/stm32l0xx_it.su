@@ -1,3 +1,4 @@
+stm32l0xx_ll_tim.h:2577:22:LL_TIM_ClearFlag_UPDATE	16	static
 stm32l0xx_it.c:70:6:NMI_Handler	8	static
 stm32l0xx_it.c:85:6:HardFault_Handler	8	static
 stm32l0xx_it.c:100:6:SVC_Handler	8	static

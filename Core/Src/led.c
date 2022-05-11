@@ -23,6 +23,9 @@ Led ledStatus = { 0 , 0 };
 void LedStart(void){
 	LL_TIM_EnableCounter(TIM2);
 	LL_TIM_CC_EnableChannel(TIM2, LL_TIM_CHANNEL_CH1);
+
+	LL_TIM_EnableUpdateEvent(TIM21);
+	LL_TIM_EnableCounter(TIM21);
 }
 
 // Configure le rapport cyclique
