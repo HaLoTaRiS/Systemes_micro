@@ -15,4 +15,6 @@ uint8_t SerialTransmit(char * pData, uint16_t Size);
 
 char SerialReceiveChar(void);
 
+char SerialReceiveByte (void);
+
 #endif

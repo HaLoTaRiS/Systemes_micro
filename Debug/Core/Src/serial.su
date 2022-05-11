@@ -1,4 +1,7 @@
+stm32l0xx_ll_usart.h:2608:26:LL_USART_IsActiveFlag_RXNE	16	static
+stm32l0xx_ll_usart.h:2630:26:LL_USART_IsActiveFlag_TXE	16	static
 stm32l0xx_ll_usart.h:3604:25:LL_USART_ReceiveData8	16	static
 stm32l0xx_ll_usart.h:3627:22:LL_USART_TransmitData8	16	static
-serial.c:12:9:SerialTransmit	32	static
-serial.c:21:6:SerialReceiveChar	8	static
+serial.c:12:9:SerialTransmit	24	static
+serial.c:22:6:SerialReceiveChar	8	static
+serial.c:27:6:SerialReceiveByte	8	static
