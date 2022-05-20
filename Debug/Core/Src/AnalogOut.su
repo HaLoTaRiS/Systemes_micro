@@ -1,0 +1,8 @@
+stm32l0xx_ll_spi.h:298:22:LL_SPI_Enable	16	static
+stm32l0xx_ll_spi.h:743:26:LL_SPI_IsActiveFlag_TXE	16	static
+stm32l0xx_ll_spi.h:1116:22:LL_SPI_TransmitData16	24	static
+stm32l0xx_ll_gpio.h:844:22:LL_GPIO_SetOutputPin	16	static
+stm32l0xx_ll_gpio.h:873:22:LL_GPIO_ResetOutputPin	16	static
+AnalogOut.c:8:6:AnalogOutInit	8	static
+AnalogOut.c:17:6:AnalogOutConvert	24	static
+AnalogOut.c:33:6:AnalogOutPulse	8	static

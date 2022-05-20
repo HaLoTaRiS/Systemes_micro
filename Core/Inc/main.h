@@ -48,7 +48,10 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+typedef struct data_dac_adc {
+	uint16_t ADC_IN ;
+	uint16_t DAC_OUT;
+} DAC_ADC;
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -74,6 +77,8 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define ADC_IN_Pin LL_GPIO_PIN_1
+#define ADC_IN_GPIO_Port GPIOA
 #define DAC_nLDAC_Pin LL_GPIO_PIN_3
 #define DAC_nLDAC_GPIO_Port GPIOA
 #define DAC_nCS_Pin LL_GPIO_PIN_4

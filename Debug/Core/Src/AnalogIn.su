@@ -1,0 +1,7 @@
+stm32l0xx_ll_adc.h:3357:22:LL_ADC_Enable	16	static
+stm32l0xx_ll_adc.h:3484:22:LL_ADC_REG_StartConversion	16	static
+stm32l0xx_ll_adc.h:3590:25:LL_ADC_REG_ReadConversionData8	16	static
+stm32l0xx_ll_adc.h:3638:26:LL_ADC_IsActiveFlag_EOC	16	static
+AnalogIn.c:14:6:AnalogInInit	8	static
+AnalogIn.c:19:6:AnalogInStartConversion	8	static
+AnalogIn.c:25:9:AnalogInGetValue	8	static

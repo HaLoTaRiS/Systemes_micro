@@ -17,12 +17,26 @@
 #include "led.h"
 #include "serial.h"
 #include "shell.h"
-//#include "stdio.h"
+#include "AnalogOut.h"
+#include "timebase.h"
+#include "AnalogIn.h"
+#include "RCFilter.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
 hShell_t hShell;
+
+// Structure pour la gestion la led Status :
+
+
+// Initialisation des données de la structure
+DAC_ADC valeur = { 0 , 0 };
+
+extern DAC_ADC valeur;
+extern hRCFilter_t hRCFilter;
+uint8_t count = 0;
+
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -97,14 +111,29 @@ int main(void)
 	MX_TIM2_Init();
 	MX_TIM21_Init();
 	/* USER CODE BEGIN 2 */
+
+	/************** Initialisation **************/
+
+	//Questionn 3.5 Amélioration : Activation interrupt UART
+	LL_USART_EnableIT_RXNE(USART2);
+	// Question 3.5 Shell
 	ShellInit(&hShell, &SerialTransmit);
+	// Question 3.2 InitLed()
 	LedStart();
-	//  printf("initialisation \r\n");
+	// Question 3.3 Led Timer
+	TimeBaseStartIT();
+	// Question 3.6
+	AnalogOutInit();
+	// Question 3.7
+	AnalogInInit();
+
+	// Question 3.8 filtre RC
+	//RCFilterInit(&hRCFilter, 32000, 16000);
+
 	/* USER CODE END 2 */
 
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
-
 
 	while (1)
 	{
@@ -117,10 +146,26 @@ int main(void)
 		//		char ch = SerialReceiveChar();
 		//	SerialTransmit(&ch, 1);
 
-		// 3.5 : Code pour le shell :
+		// 3.5 : Code pour le shell : // (supprimé pour retirer le polling).
+		//		char c = SerialReceiveByte();
+		//		ShellProcess(&hShell, c);
 
-		char c = SerialReceiveByte();
-		ShellProcess(&hShell, c);
+		// Compteur pour jouer sur l'échantillon du signal -> Visible sur l'oscillo
+		if (count>32){ // Valeur à modifier pour modifier l'échantillon.
+
+			// Question 3.6 Génération du signal triangle
+			//AnalogOutPulse();
+
+			// Question 3.7 : By pass avec
+			// Génération dy bypass
+			valeur.ADC_IN = AnalogInGetValue();
+			// Question 3.8 filtre RC
+			// uint16_t RCFilterUpdate(hRCFilter_t * hRCFilter, uint16_t input)
+			valeur.DAC_OUT = valeur.ADC_IN;
+			AnalogOutConvert(valeur.DAC_OUT);
+			AnalogInStartConversion();
+			count = 0;
+		}
 
 		/* USER CODE END WHILE */
 
@@ -197,10 +242,14 @@ static void MX_ADC_Init(void)
 	/**ADC GPIO Configuration
   PA1   ------> ADC_IN1
 	 */
-	GPIO_InitStruct.Pin = LL_GPIO_PIN_1;
+	GPIO_InitStruct.Pin = ADC_IN_Pin;
 	GPIO_InitStruct.Mode = LL_GPIO_MODE_ANALOG;
 	GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
-	LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+	LL_GPIO_Init(ADC_IN_GPIO_Port, &GPIO_InitStruct);
+
+	/* ADC interrupt Init */
+	NVIC_SetPriority(ADC1_COMP_IRQn, 0);
+	NVIC_EnableIRQ(ADC1_COMP_IRQn);
 
 	/* USER CODE BEGIN ADC_Init 1 */
 
@@ -212,18 +261,18 @@ static void MX_ADC_Init(void)
 	 */
 	ADC_REG_InitStruct.TriggerSource = LL_ADC_REG_TRIG_SOFTWARE;
 	ADC_REG_InitStruct.SequencerDiscont = LL_ADC_REG_SEQ_DISCONT_DISABLE;
-	ADC_REG_InitStruct.ContinuousMode = LL_ADC_REG_CONV_SINGLE;
+	ADC_REG_InitStruct.ContinuousMode = LL_ADC_REG_CONV_CONTINUOUS;
 	ADC_REG_InitStruct.DMATransfer = LL_ADC_REG_DMA_TRANSFER_NONE;
 	ADC_REG_InitStruct.Overrun = LL_ADC_REG_OVR_DATA_PRESERVED;
 	LL_ADC_REG_Init(ADC1, &ADC_REG_InitStruct);
-	LL_ADC_SetSamplingTimeCommonChannels(ADC1, LL_ADC_SAMPLINGTIME_1CYCLE_5);
+	LL_ADC_SetSamplingTimeCommonChannels(ADC1, LL_ADC_SAMPLINGTIME_12CYCLES_5);
 	LL_ADC_SetOverSamplingScope(ADC1, LL_ADC_OVS_DISABLE);
 	LL_ADC_REG_SetSequencerScanDirection(ADC1, LL_ADC_REG_SEQ_SCAN_DIR_FORWARD);
 	LL_ADC_SetCommonFrequencyMode(__LL_ADC_COMMON_INSTANCE(ADC1), LL_ADC_CLOCK_FREQ_MODE_HIGH);
 	LL_ADC_DisableIT_EOC(ADC1);
 	LL_ADC_DisableIT_EOS(ADC1);
 	ADC_InitStruct.Clock = LL_ADC_CLOCK_SYNC_PCLK_DIV2;
-	ADC_InitStruct.Resolution = LL_ADC_RESOLUTION_12B;
+	ADC_InitStruct.Resolution = LL_ADC_RESOLUTION_8B;
 	ADC_InitStruct.DataAlignment = LL_ADC_DATA_ALIGN_RIGHT;
 	ADC_InitStruct.LowPowerMode = LL_ADC_LP_MODE_NONE;
 	LL_ADC_Init(ADC1, &ADC_InitStruct);
@@ -270,18 +319,9 @@ static void MX_SPI1_Init(void)
 	LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOA);
 	/**SPI1 GPIO Configuration
   PA5   ------> SPI1_SCK
-  PA6   ------> SPI1_MISO
   PA7   ------> SPI1_MOSI
 	 */
 	GPIO_InitStruct.Pin = LL_GPIO_PIN_5;
-	GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
-	GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
-	GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-	GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
-	GPIO_InitStruct.Alternate = LL_GPIO_AF_0;
-	LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-	GPIO_InitStruct.Pin = LL_GPIO_PIN_6;
 	GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
 	GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
 	GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
@@ -303,7 +343,7 @@ static void MX_SPI1_Init(void)
 	/* SPI1 parameter configuration*/
 	SPI_InitStruct.TransferDirection = LL_SPI_FULL_DUPLEX;
 	SPI_InitStruct.Mode = LL_SPI_MODE_MASTER;
-	SPI_InitStruct.DataWidth = LL_SPI_DATAWIDTH_8BIT;
+	SPI_InitStruct.DataWidth = LL_SPI_DATAWIDTH_16BIT;
 	SPI_InitStruct.ClockPolarity = LL_SPI_POLARITY_LOW;
 	SPI_InitStruct.ClockPhase = LL_SPI_PHASE_1EDGE;
 	SPI_InitStruct.NSS = LL_SPI_NSS_SOFT;
@@ -343,7 +383,7 @@ static void MX_TIM2_Init(void)
 
 	/* USER CODE END TIM2_Init 1 */
 	TIM_InitStruct.Prescaler = 124;
-	TIM_InitStruct.CounterMode = LL_TIM_COUNTERMODE_UP;
+	TIM_InitStruct.CounterMode = LL_TIM_COUNTERMODE_CENTER_UP;
 	TIM_InitStruct.Autoreload = 255;
 	TIM_InitStruct.ClockDivision = LL_TIM_CLOCKDIVISION_DIV1;
 	LL_TIM_Init(TIM2, &TIM_InitStruct);
@@ -352,7 +392,7 @@ static void MX_TIM2_Init(void)
 	LL_TIM_OC_EnablePreload(TIM2, LL_TIM_CHANNEL_CH1);
 	TIM_OC_InitStruct.OCMode = LL_TIM_OCMODE_PWM1;
 	TIM_OC_InitStruct.OCState = LL_TIM_OCSTATE_DISABLE;
-	TIM_OC_InitStruct.CompareValue = 255;
+	TIM_OC_InitStruct.CompareValue = 0;
 	TIM_OC_InitStruct.OCPolarity = LL_TIM_OCPOLARITY_HIGH;
 	LL_TIM_OC_Init(TIM2, LL_TIM_CHANNEL_CH1, &TIM_OC_InitStruct);
 	LL_TIM_OC_DisableFast(TIM2, LL_TIM_CHANNEL_CH1);
@@ -454,6 +494,10 @@ static void MX_USART2_UART_Init(void)
 	GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
 	GPIO_InitStruct.Alternate = LL_GPIO_AF_4;
 	LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+	/* USART2 interrupt Init */
+	NVIC_SetPriority(USART2_IRQn, 0);
+	NVIC_EnableIRQ(USART2_IRQn);
 
 	/* USER CODE BEGIN USART2_Init 1 */
 

@@ -11,6 +11,12 @@
 
 #include "main.h"
 
+// Structure pour la gestion la led Status :
+typedef struct {
+	uint8_t luminosite ;
+	uint8_t updown;
+} Led_t;
+
 // Fonction qui démarre le timer
 void LedStart(void);
 

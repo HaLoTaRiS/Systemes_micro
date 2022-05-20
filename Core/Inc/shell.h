@@ -43,7 +43,7 @@ typedef struct ShellFunc{
 } ShellFunc_t;
 
 typedef struct hShellStruct{
-	uint16_t funcListSize;
+	uint8_t funcListSize;
 	ShellFunc_t funcList[_SHELL_FUNC_LIST_MAX_SIZE];
 	char cmdLineBuffer[_COMMAND_LINE_SIZE];
 	char printBuffer[_PRINT_BUFFER_SIZE];

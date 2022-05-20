@@ -10,7 +10,19 @@
 
 #include "Shell.h"
 #include <stdio.h>
+#include "AnalogOut.h"
+#include "led.h"
+#include "RCFilter.h"
+#include <stdlib.h>
 
+// Récupération des données pour lire dans le shell
+extern DAC_t DacSPI;
+extern Led_t ledStatus;
+extern DAC_ADC valeur;
+extern hRCFilter_t hRCFilter;
+
+//float DAC_reso = 3.3/255;
+////		(10/3)* valeur.ADC_IN/255;
 
 int shHelp(hShell_t * hShell, int argc, char ** argv) {
 	int i;
@@ -23,6 +35,66 @@ int shHelp(hShell_t * hShell, int argc, char ** argv) {
 		hShell->transmitCb(hShell->printBuffer, size);
 	}
 
+	return 0;
+}
+
+int shHello(hShell_t * hShell, int argc, char ** argv) {
+	uint16_t size = snprintf(hShell->printBuffer, _PRINT_BUFFER_SIZE, " {•̃_•̃} Hello World !!! \r\n");
+	hShell->transmitCb(hShell->printBuffer, size);
+	return 0;
+}
+
+int shRead(hShell_t * hShell, int argc, char ** argv) {
+
+// Mis en commentaire pour libérer la mémoire
+	uint16_t size = snprintf(hShell->printBuffer, _PRINT_BUFFER_SIZE, "\r\n === Lecture des valeurs ===\r\n");
+	hShell->transmitCb(hShell->printBuffer, size);
+	size = snprintf(hShell->printBuffer, _PRINT_BUFFER_SIZE, "LED :\r\n   Luminosité : %d/255 \r\n", ledStatus.luminosite);
+	hShell->transmitCb(hShell->printBuffer, size);
+	size = snprintf(hShell->printBuffer, _PRINT_BUFFER_SIZE, "   Augmentation(0)/Diminution(1) : %d \r\n", ledStatus.updown);
+	hShell->transmitCb(hShell->printBuffer, size);
+	size = snprintf(hShell->printBuffer, _PRINT_BUFFER_SIZE, "Signal Triangle :\r\n   Amplitude : %d/255\r\n", DacSPI.amplitude);
+	hShell->transmitCb(hShell->printBuffer, size);
+	size = snprintf(hShell->printBuffer, _PRINT_BUFFER_SIZE, "   Montant(0)/Descendant(1) : %d \r\n", DacSPI.updown);
+	hShell->transmitCb(hShell->printBuffer, size);
+	size = snprintf(hShell->printBuffer, _PRINT_BUFFER_SIZE, "Lecture ADC :\r\n");
+	hShell->transmitCb(hShell->printBuffer, size);
+	size = snprintf(hShell->printBuffer, _PRINT_BUFFER_SIZE, "   Résolution(8bits) : %d/255\r\n", valeur.ADC_IN);
+	hShell->transmitCb(hShell->printBuffer, size);
+
+
+// Mauvaise idee : Demande trop de place dans la mémoire
+//	size = snprintf(hShell->printBuffer, _PRINT_BUFFER_SIZE, "Tension (Volt) :\r\n %f \r\n", DAC_reso*valeur.ADC_IN);
+//	hShell->transmitCb(hShell->printBuffer, size);
+
+	return 0;
+}
+
+int shWriteFilter(hShell_t * hShell, int argc, char ** argv) {
+	uint16_t size = snprintf(hShell->printBuffer, _PRINT_BUFFER_SIZE, "\r\n === Filtre RC : Ecriture A,B et D===\r\n");
+	hShell->transmitCb(hShell->printBuffer, size);
+
+	if (argc == 4) {
+		hRCFilter.coeffA = atoi(argv[1]);			// on écrit dans coeff A
+		hRCFilter.coeffB = atoi(argv[2]);			// on écrit dans coeff B
+		hRCFilter.coeffD = atoi(argv[3]);			// on écrit dans coeff D
+	}
+	else {
+		size = snprintf(hShell->printBuffer, _PRINT_BUFFER_SIZE, "   ! Erreur arguments A, B, et D \r\n");
+		hShell->transmitCb(hShell->printBuffer, size);
+	}
+	return 0;
+}
+
+int shReadFilter(hShell_t * hShell, int argc, char ** argv) {
+	uint16_t size = snprintf(hShell->printBuffer, _PRINT_BUFFER_SIZE, "\r\n === Filtre RC : Lecture A,B et D ===\r\n");
+	hShell->transmitCb(hShell->printBuffer, size);
+	size = snprintf(hShell->printBuffer, _PRINT_BUFFER_SIZE, "   Coeff A : %lu\r\n", hRCFilter.coeffA);
+	hShell->transmitCb(hShell->printBuffer, size);
+	size = snprintf(hShell->printBuffer, _PRINT_BUFFER_SIZE, "   Coeff B : %lu\r\n", hRCFilter.coeffB);
+	hShell->transmitCb(hShell->printBuffer, size);
+	size = snprintf(hShell->printBuffer, _PRINT_BUFFER_SIZE, "   Coeff D : %lu\r\n", hRCFilter.coeffD);
+	hShell->transmitCb(hShell->printBuffer, size);
 	return 0;
 }
 
@@ -60,11 +132,18 @@ uint8_t ShellInit(hShell_t * hShell, ShellTransmitCb_t transmitCb) {
 	hShell->transmitCb = transmitCb;
 	hShell->cmdLinePosition = 0;
 	hShell->arrowPending = 0;
-
-	uint16_t size = snprintf(hShell->printBuffer, _PRINT_BUFFER_SIZE, "\r\n\r\n===== Monsieur Shell v0.4 =====\r\n");
+	uint16_t size = snprintf(hShell->printBuffer, _PRINT_BUFFER_SIZE, "\r\n\r\n   3DN : TP Microcontroleur\r\n");
+	hShell->transmitCb(hShell->printBuffer, size);
+	size = snprintf(hShell->printBuffer, _PRINT_BUFFER_SIZE, "Baptiste FRITOT - Jeremy VICENTE\r\n");
+	hShell->transmitCb(hShell->printBuffer, size);
+	size = snprintf(hShell->printBuffer, _PRINT_BUFFER_SIZE, "===== Monsieur Shell v0.4 =====\r\n");
 	hShell->transmitCb(hShell->printBuffer, size);
 
 	ShellAdd(hShell, 'h', shHelp, "Displays this help message");
+	ShellAdd(hShell, 'a', shHello, "Hello World");
+	ShellAdd(hShell, 'z', shRead, "Read Value");
+	ShellAdd(hShell, 'q', shWriteFilter, "Filter : Modify Coef A, B and D");
+	ShellAdd(hShell, 's', shReadFilter, "Filter : Read Data A, B and D");
 
 	hShell->transmitCb("\r\n> ", 4);
 

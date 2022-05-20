@@ -10,23 +10,14 @@
 #include "led.h"
 #include "main.h"
 
-// Structure pour la gestion de a led :
-typedef struct data {
-	int8_t lumonosite ;
-	int8_t updown;
-} Led;
 
 // Initialisation des données de la structure
-Led ledStatus = { 0 , 0 };
+Led_t ledStatus = { 0 , 0 };
 
 // Fonction pour démarrer le timer
 void LedStart(void){
 	LL_TIM_EnableCounter(TIM2);
 	LL_TIM_CC_EnableChannel(TIM2, LL_TIM_CHANNEL_CH1);
-
-	LL_TIM_EnableUpdateEvent(TIM21);
-	LL_TIM_EnableIT_UPDATE(TIM21);
-	LL_TIM_EnableCounter(TIM21);
 }
 
 // Configure le rapport cyclique
@@ -34,24 +25,25 @@ void LedSetValue(uint8_t val){
 	LL_TIM_OC_SetCompareCH1(TIM2, val);
 }
 
+// Gere l'intensité
 void LedPulse(void){
 	//augmentation d'intensité led
 	if (ledStatus.updown == 0) {
-		ledStatus.lumonosite++;
-		if (ledStatus.lumonosite == 124){
-			ledStatus.updown = 1;
-		}
+		ledStatus.luminosite++;
 	}
-	//Diminution de l'intensité LedStatus
+	// Diminution de l'intensité
 	else {
-		ledStatus.lumonosite--;
-		if (ledStatus.lumonosite == 1){
-			ledStatus.updown = 0;
-		}
+		ledStatus.luminosite--;
 	}
-	LedSetValue(ledStatus.lumonosite);
+
+	// En mode décrémente
+	if (ledStatus.luminosite == 255){
+		ledStatus.updown = 1;
+	}
+
+	// En mode incrémente
+	if (ledStatus.luminosite == 0){
+		ledStatus.updown = 0;
+	}
+	LedSetValue(ledStatus.luminosite);
 }
-
-
-
-

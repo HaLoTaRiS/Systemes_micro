@@ -1,4 +1,4 @@
-Core/Src/stm32l0xx_it.o: ../Core/Src/stm32l0xx_it.c ../Core/Inc/main.h \
+Core/Src/AnalogIn.o: ../Core/Src/AnalogIn.c ../Core/Inc/main.h \
  ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_ll_adc.h \
  ../Drivers/CMSIS/Device/ST/STM32L0xx/Include/stm32l0xx.h \
  ../Drivers/CMSIS/Device/ST/STM32L0xx/Include/stm32l021xx.h \
@@ -20,9 +20,7 @@ Core/Src/stm32l0xx_it.o: ../Core/Src/stm32l0xx_it.c ../Core/Inc/main.h \
  ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_ll_tim.h \
  ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_ll_usart.h \
  ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_ll_gpio.h \
- ../Core/Inc/stm32l0xx_it.h ../Core/Inc/led.h ../Core/Inc/main.h \
- ../Core/Inc/AnalogOut.h ../Core/Inc/AnalogIn.h ../Core/Inc/serial.h \
- ../Core/Inc/shell.h
+ ../Core/Inc/AnalogIn.h
 
 ../Core/Inc/main.h:
 
@@ -68,16 +66,4 @@ Core/Src/stm32l0xx_it.o: ../Core/Src/stm32l0xx_it.c ../Core/Inc/main.h \
 
 ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_ll_gpio.h:
 
-../Core/Inc/stm32l0xx_it.h:
-
-../Core/Inc/led.h:
-
-../Core/Inc/main.h:
-
-../Core/Inc/AnalogOut.h:
-
 ../Core/Inc/AnalogIn.h:
-
-../Core/Inc/serial.h:
-
-../Core/Inc/shell.h:

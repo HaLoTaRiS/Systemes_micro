@@ -23,10 +23,20 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "led.h"
+#include "AnalogOut.h"
+#include "AnalogIn.h"
+#include "serial.h"
+#include "shell.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN TD */
+
+extern hShell_t hShell; // Shell pour l'interruption=
+
+//extern DAC_ADC valeur; //
+
+extern uint8_t count;
 
 /* USER CODE END TD */
 
@@ -142,18 +152,53 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /**
+  * @brief This function handles ADC, COMP1 and COMP2 interrupts (COMP interrupts through EXTI lines 21 and 22).
+  */
+void ADC1_COMP_IRQHandler(void)
+{
+  /* USER CODE BEGIN ADC1_COMP_IRQn 0 */
+
+  /* USER CODE END ADC1_COMP_IRQn 0 */
+
+  /* USER CODE BEGIN ADC1_COMP_IRQn 1 */
+
+  /* USER CODE END ADC1_COMP_IRQn 1 */
+}
+
+/**
   * @brief This function handles TIM21 global interrupt.
   */
 void TIM21_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM21_IRQn 0 */
-	//	LL_TIM_ClearFlag_CC1(TIM21);
 	LL_TIM_ClearFlag_UPDATE(TIM21);
+	// Question 3.3
 	LedPulse();
+	count++ ;
+	// Question 3.6
+	//	AnalogOutPulse();
+
   /* USER CODE END TIM21_IRQn 0 */
   /* USER CODE BEGIN TIM21_IRQn 1 */
 
   /* USER CODE END TIM21_IRQn 1 */
+}
+
+/**
+  * @brief This function handles USART2 global interrupt / USART2 wake-up interrupt through EXTI line 26.
+  */
+void USART2_IRQHandler(void)
+{
+  /* USER CODE BEGIN USART2_IRQn 0 */
+	// Améliration Uart IRQ
+	char c = SerialReceiveByte();
+	ShellProcess(&hShell, c);
+
+
+  /* USER CODE END USART2_IRQn 0 */
+  /* USER CODE BEGIN USART2_IRQn 1 */
+
+  /* USER CODE END USART2_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */
